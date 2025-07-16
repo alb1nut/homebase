@@ -9,27 +9,27 @@ export function useProperties() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchProperties() {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('properties')
-          .select('*')
-          .order('created_at', { ascending: false });
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (error) {
-          setError(error.message);
-        } else {
-          setProperties(data || []);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+      if (error) {
+        setError(error.message);
+      } else {
+        setProperties(data || []);
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchProperties();
   }, []);
 

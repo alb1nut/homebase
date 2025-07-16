@@ -8,13 +8,19 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface PropertyDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps) {
-  const { property, loading, error } = useProperty(params.id);
+export default async function PropertyDetailsPage({ params }: PropertyDetailsPageProps) {
+  const { id } = await params;
+  
+  return <PropertyDetailsContent id={id} />;
+}
+
+function PropertyDetailsContent({ id }: { id: string }) {
+  const { property, loading, error } = useProperty(id);
 
   if (loading) {
     return (

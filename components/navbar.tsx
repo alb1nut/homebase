@@ -12,15 +12,24 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, Building2, Search, User, Menu } from "lucide-react";
+import { Home, Building2, Search, User, Menu, LogOut, Settings, Plus } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/auth-context";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,8 +44,13 @@ export function Navbar() {
     { href: "/buy", label: "Buy" },
     { href: "/rent", label: "Rent" },
     { href: "/sell", label: "Sell" },
+    { href: "/listings", label: "Listings" },
     { href: "/agents", label: "Agents" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <motion.header
@@ -114,33 +128,77 @@ export function Navbar() {
             <ModeToggle />
           </motion.div>
           
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button asChild variant="outline" size="sm" className="hidden sm:flex">
-              <Link href="/listings/saved">
-                <Search className="mr-2 h-4 w-4" /> Saved
-              </Link>
-            </Button>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button asChild className="hidden sm:flex">
-              <Link href="/auth/signin">
-                <User className="mr-2 h-4 w-4" /> Sign In
-              </Link>
-            </Button>
-          </motion.div>
+          {user ? (
+            <>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button asChild variant="outline" size="sm" className="hidden sm:flex">
+                  <Link href="/list-property">
+                    <Plus className="mr-2 h-4 w-4" /> List Property
+                  </Link>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="hidden sm:flex">
+                      <User className="mr-2 h-4 w-4" />
+                      {user.user_metadata?.full_name || user.email}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-properties">
+                        <Building2 className="mr-2 h-4 w-4" />
+                        My Properties
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
+            </>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button asChild className="hidden sm:flex">
+                <Link href="/auth">
+                  <User className="mr-2 h-4 w-4" /> Sign In
+                </Link>
+              </Button>
+            </motion.div>
+          )}
           
           {/* Mobile Navigation */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -189,29 +247,62 @@ export function Navbar() {
                   transition={{ delay: 0.5 }}
                 />
                 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <Button asChild variant="outline" className="w-full mb-2">
-                    <Link href="/listings/saved" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Search className="mr-2 h-4 w-4" /> Saved Properties
-                    </Link>
-                  </Button>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <Button asChild className="w-full">
-                    <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
-                      <User className="mr-2 h-4 w-4" /> Sign In
-                    </Link>
-                  </Button>
-                </motion.div>
+                {user ? (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <Button asChild variant="outline" className="w-full mb-2">
+                        <Link href="/list-property" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Plus className="mr-2 h-4 w-4" /> List Property
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      <Button asChild variant="outline" className="w-full mb-2">
+                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Settings className="mr-2 h-4 w-4" /> Dashboard
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                    >
+                      <Button 
+                        variant="destructive" 
+                        className="w-full"
+                        onClick={() => {
+                          handleSignOut();
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                      </Button>
+                    </motion.div>
+                  </>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <Button asChild className="w-full">
+                      <Link href="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                        <User className="mr-2 h-4 w-4" /> Sign In
+                      </Link>
+                    </Button>
+                  </motion.div>
+                )}
               </nav>
             </SheetContent>
           </Sheet>

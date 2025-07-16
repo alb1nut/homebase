@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, isAgent?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -30,6 +30,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // If user just signed in and is an agent, check if they need to complete setup
+        if (event === 'SIGNED_IN' && session?.user?.user_metadata?.is_agent) {
+          // Check if agent profile is complete
+          const { data: existingAgent } = await supabase
+            .from('agents')
+            .select('id, title, company, bio')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          // If agent record exists but profile is incomplete, redirect to setup
+          if (existingAgent && (!existingAgent.title || !existingAgent.company || !existingAgent.bio)) {
+            setTimeout(() => {
+              window.location.href = '/agent-setup';
+            }, 100);
+          }
+          // If no agent record exists, redirect to setup
+          else if (!existingAgent) {
+            setTimeout(() => {
+              window.location.href = '/agent-setup';
+            }, 100);
+          }
+        }
       }
     );
 
@@ -44,16 +67,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, fullName: string, isAgent: boolean = false) => {
+    // First try normal signup
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName,
+          is_agent: isAgent,
         },
+        emailRedirectTo: undefined, // Disable email verification
+        captchaToken: undefined, // Disable captcha if enabled
       },
     });
+
+    // If signup successful, automatically sign in the user
+    if (data.user && !error) {
+      // Wait a moment for the database triggers to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Sign in the user immediately
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (signInError) {
+        console.error('Auto sign-in failed:', signInError);
+        return { error: signInError };
+      }
+      
+      return { error: null };
+    }
+
     return { error };
   };
 

@@ -1,10 +1,36 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { unoptimized: true },
+  images: { 
+    unoptimized: true,
+    domains: [
+      'images.pexels.com',
+      'images.unsplash.com',
+      'pdrtvzdeahcxkmacexog.supabase.co'
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pdrtvzdeahcxkmacexog.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       config.cache = false;

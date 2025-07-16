@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, SlidersHorizontal } from "lucide-react";
+import ClientOnly from "@/components/client-only";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -96,62 +97,64 @@ export default function ListingsPage() {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search properties..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <ClientOnly fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 animate-pulse"><div className="h-10 bg-muted rounded" /><div className="h-10 bg-muted rounded" /><div className="h-10 bg-muted rounded" /><div className="h-10 bg-muted rounded" /><div className="h-10 bg-muted rounded" /></div>}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search properties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Property Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="For Sale">For Sale</SelectItem>
+                  <SelectItem value="For Rent">For Rent</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="accra">Accra</SelectItem>
+                  <SelectItem value="kumasi">Kumasi</SelectItem>
+                  <SelectItem value="tema">Tema</SelectItem>
+                  <SelectItem value="takoradi">Takoradi</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={priceRange} onValueChange={setPriceRange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Price Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Prices</SelectItem>
+                  <SelectItem value="under-500k">Under GH₵ 500K</SelectItem>
+                  <SelectItem value="500k-1m">GH₵ 500K - 1M</SelectItem>
+                  <SelectItem value="1m-2m">GH₵ 1M - 2M</SelectItem>
+                  <SelectItem value="over-2m">Over GH₵ 2M</SelectItem>
+                  <SelectItem value="under-3k">Under GH₵ 3K/month</SelectItem>
+                  <SelectItem value="3k-5k">GH₵ 3K - 5K/month</SelectItem>
+                  <SelectItem value="over-5k">Over GH₵ 5K/month</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                More Filters
+              </Button>
             </div>
-            
-            <Select value={propertyType} onValueChange={setPropertyType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Property Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="For Sale">For Sale</SelectItem>
-                <SelectItem value="For Rent">For Rent</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="accra">Accra</SelectItem>
-                <SelectItem value="kumasi">Kumasi</SelectItem>
-                <SelectItem value="tema">Tema</SelectItem>
-                <SelectItem value="takoradi">Takoradi</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="under-500k">Under GH₵ 500K</SelectItem>
-                <SelectItem value="500k-1m">GH₵ 500K - 1M</SelectItem>
-                <SelectItem value="1m-2m">GH₵ 1M - 2M</SelectItem>
-                <SelectItem value="over-2m">Over GH₵ 2M</SelectItem>
-                <SelectItem value="under-3k">Under GH₵ 3K/month</SelectItem>
-                <SelectItem value="3k-5k">GH₵ 3K - 5K/month</SelectItem>
-                <SelectItem value="over-5k">Over GH₵ 5K/month</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              More Filters
-            </Button>
-          </div>
+          </ClientOnly>
         </div>
       </motion.section>
 

@@ -1,6 +1,43 @@
 -- HomeBase Real Estate Platform Database Setup
 -- Run this in your Supabase SQL Editor
 
+-- Create user profiles table
+CREATE TABLE IF NOT EXISTS user_profiles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+    full_name TEXT,
+    phone TEXT,
+    bio TEXT,
+    location TEXT,
+    avatar_url TEXT,
+    is_agent BOOLEAN DEFAULT false,
+    is_verified BOOLEAN DEFAULT false,
+    email_notifications BOOLEAN DEFAULT true,
+    sms_notifications BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for user profiles
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_is_agent ON user_profiles(is_agent);
+
+-- Enable RLS for user profiles
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for user profiles
+CREATE POLICY "Users can view their own profile" ON user_profiles
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own profile" ON user_profiles
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own profile" ON user_profiles
+    FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Anyone can view agent profiles" ON user_profiles
+    FOR SELECT USING (is_agent = true);
+
 -- Create properties table
 CREATE TABLE IF NOT EXISTS properties (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -15,7 +52,7 @@ CREATE TABLE IF NOT EXISTS properties (
     image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL
 );
 
 -- Create indexes for better performance
@@ -40,7 +77,7 @@ CREATE POLICY "Users can update their own properties" ON properties
 CREATE POLICY "Users can delete their own properties" ON properties
     FOR DELETE USING (auth.uid() = user_id);
 
--- Create agents table
+-- Create agents table (legacy - keeping for backward compatibility)
 CREATE TABLE IF NOT EXISTS agents (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name TEXT NOT NULL,
@@ -93,6 +130,21 @@ CREATE POLICY "Property owners can manage images" ON property_images
         )
     );
 
+-- Function to automatically create user profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.user_profiles (user_id, full_name)
+    VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to create user profile on signup
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- Insert sample data (you can modify or remove this)
 INSERT INTO properties (title, description, price, location, beds, baths, sqft, property_type, image_url) VALUES
     ('Modern Apartment in Airport Residential', 'Beautiful modern apartment with great amenities and excellent location near the airport.', 750000, 'Airport Residential, Accra', 3, 2, 1200, 'For Sale', 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
@@ -116,6 +168,7 @@ $$ language 'plpgsql';
 -- Create triggers for updated_at
 CREATE TRIGGER update_properties_updated_at BEFORE UPDATE ON properties FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_agents_updated_at BEFORE UPDATE ON agents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Create storage bucket for property images (run this separately if needed)
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('property-images', 'property-images', true);

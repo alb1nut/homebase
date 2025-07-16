@@ -5,10 +5,8 @@ import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/property-card";
 import { HeroSearch } from "@/components/hero-search";
 import { LocationFeature } from "@/components/location-feature";
-import { StatsSection } from "@/components/stats-section";
 import { HowItWorks } from "@/components/how-it-works";
-import { TestimonialSection } from "@/components/testimonial-section";
-import { ArrowRight, Sparkles, Shield, Users } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Users, MapPin, Star, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useProperties } from "@/hooks/use-properties";
 
@@ -51,121 +49,207 @@ export default function Home() {
   
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[85vh] min-h-[700px] flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20 z-10"></div>
+      {/* Enhanced Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20 z-10"></div>
+        
+        {/* Dynamic Background */}
         <motion.div 
           className="absolute inset-0 bg-cover bg-center z-0" 
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          initial={{ scale: 1.1, opacity: 0.8 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
           style={{ 
             backgroundImage: "url('https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')",
             backgroundAttachment: "fixed"
           }}
         ></motion.div>
         
-        {/* Animated background elements */}
+        {/* Floating Elements */}
         <div className="absolute inset-0 z-5">
           <motion.div 
-            className="absolute top-20 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"
+            className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
             animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3]
+              scale: [1, 1.3, 1],
+              opacity: [0.2, 0.5, 0.2],
+              x: [0, 50, 0],
+              y: [0, -30, 0]
             }}
             transition={{ 
-              duration: 4,
+              duration: 8,
               repeat: Infinity,
               ease: "easeInOut"
             }}
           ></motion.div>
           <motion.div 
-            className="absolute bottom-20 right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+            className="absolute bottom-20 right-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"
             animate={{ 
               scale: [1.2, 1, 1.2],
-              opacity: [0.6, 0.3, 0.6]
+              opacity: [0.5, 0.2, 0.5],
+              x: [0, -40, 0],
+              y: [0, 20, 0]
             }}
             transition={{ 
-              duration: 4,
+              duration: 8,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: 2
+              delay: 4
+            }}
+          ></motion.div>
+          <motion.div 
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"
+            animate={{ 
+              scale: [1, 1.4, 1],
+              opacity: [0.1, 0.3, 0.1],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 12,
+              repeat: Infinity,
+              ease: "linear"
             }}
           ></motion.div>
         </div>
         
-        <div className="container relative z-20 text-white text-center max-w-6xl mx-auto px-4">
+        <div className="container relative z-20 text-white text-center max-w-7xl mx-auto px-4">
           <motion.div 
-            className="flex items-center justify-center mb-6"
+            className="flex items-center justify-center mb-8"
             {...fadeInDown}
           >
-            <Sparkles className="h-8 w-8 text-yellow-400 mr-2" />
-            <span className="text-yellow-400 font-semibold tracking-wide uppercase text-sm">Ghana's #1 Real Estate Platform</span>
+            <motion.div 
+              className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Sparkles className="h-5 w-5 text-yellow-400" />
+              <span className="text-yellow-400 font-semibold tracking-wide text-sm">Ghana's #1 Real Estate Platform</span>
+              <motion.div
+                className="ml-2 flex items-center gap-1"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-yellow-400 text-xs font-medium">4.9</span>
+              </motion.div>
+            </motion.div>
           </motion.div>
           
           <motion.h1 
-            className="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: 30 }}
+            className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 1, delay: 0.2 }}
           >
-            Find Your Perfect Home in Ghana
+            <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+              Find Your Perfect
+            </span>
+            <br />
+            <motion.span 
+              className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              Home in Ghana
+            </motion.span>
           </motion.h1>
           
           <motion.p 
-            className="text-xl md:text-2xl mb-10 max-w-4xl mx-auto text-blue-100 leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            The most trusted platform for buying, selling, and renting properties across Ghana. 
-            Discover your dream home with confidence.
-          </motion.p>
-          
-          <motion.div
+            className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-blue-100/90 leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
+            The most trusted platform for buying, selling, and renting properties across Ghana. 
+            <br className="hidden md:block" />
+            <motion.span 
+              className="text-yellow-400 font-semibold"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              Your dream home is just a click away.
+            </motion.span>
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mb-12"
+          >
             <HeroSearch />
           </motion.div>
           
+          {/* Trust Indicators */}
           <motion.div 
-            className="flex items-center justify-center gap-8 mt-8 text-sm text-blue-200"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
           >
             <motion.div 
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center gap-3 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Shield className="h-4 w-4" />
-              <span>Verified Properties</span>
+              <div className="flex items-center gap-2">
+                <Shield className="h-6 w-6 text-green-400" />
+                <span className="text-2xl font-bold text-white">5,000+</span>
+              </div>
+              <span className="text-blue-200 text-sm">Verified Properties</span>
             </motion.div>
+            
             <motion.div 
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center gap-3 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Users className="h-4 w-4" />
-              <span>Trusted Agents</span>
+              <div className="flex items-center gap-2">
+                <Users className="h-6 w-6 text-blue-400" />
+                <span className="text-2xl font-bold text-white">10,000+</span>
+              </div>
+              <span className="text-blue-200 text-sm">Happy Customers</span>
             </motion.div>
+            
             <motion.div 
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center gap-3 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Sparkles className="h-4 w-4" />
-              <span>Premium Service</span>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-6 w-6 text-purple-400" />
+                <span className="text-2xl font-bold text-white">98%</span>
+              </div>
+              <span className="text-blue-200 text-sm">Success Rate</span>
             </motion.div>
           </motion.div>
         </div>
+        
+        {/* Scroll Indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 }}
+        >
+          <motion.div 
+            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <motion.div 
+              className="w-1 h-3 bg-white/60 rounded-full mt-2"
+              animate={{ scaleY: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Featured Properties */}
-      <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -175,21 +259,21 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <motion.div 
-              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4"
+              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6"
               {...scaleIn}
             >
               <Sparkles className="h-4 w-4" />
               Featured Properties
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Handpicked Premium Properties
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
               Discover our carefully curated selection of the finest properties across Ghana
             </p>
           </motion.div>
 
-                    <motion.div 
+          <motion.div 
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
             variants={staggerContainer}
             initial="initial"
@@ -249,7 +333,7 @@ export default function Home() {
       </section>
 
       {/* Popular Locations */}
-      <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -259,16 +343,16 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <motion.div 
-              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4"
+              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6"
               {...scaleIn}
             >
-              <Users className="h-4 w-4" />
+              <MapPin className="h-4 w-4" />
               Popular Locations
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Explore Prime Neighborhoods
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
               Discover properties in Ghana's most sought-after and fastest-growing communities
             </p>
           </motion.div>
@@ -312,16 +396,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-      >
-        <StatsSection />
-      </motion.div>
-
       {/* How It Works */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
@@ -332,19 +406,9 @@ export default function Home() {
         <HowItWorks />
       </motion.div>
 
-      {/* Testimonials */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-      >
-        <TestimonialSection />
-      </motion.div>
-
       {/* CTA Section */}
       <motion.section 
-        className="py-20 bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground relative overflow-hidden"
+        className="py-24 bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground relative overflow-hidden"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -387,15 +451,15 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               Ready to Find Your Dream Home?
             </h2>
-            <p className="text-xl md:text-2xl mb-10 text-primary-foreground/90 leading-relaxed">
+            <p className="text-xl md:text-2xl mb-12 text-primary-foreground/90 leading-relaxed">
               Join thousands of satisfied Ghanaians who found their perfect property through HomeBase. 
               Your dream home is just a click away.
             </p>
             <motion.div 
-              className="flex flex-col sm:flex-row justify-center gap-4"
+              className="flex flex-col sm:flex-row justify-center gap-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -417,7 +481,7 @@ export default function Home() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button asChild size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
-                  <Link href="/agents">Connect with Agents</Link>
+                  <Link href="/list-property">List Your Property</Link>
                 </Button>
               </motion.div>
             </motion.div>

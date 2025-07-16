@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Building2, Users } from 'lucide-react';
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -20,6 +21,7 @@ export default function AuthPage() {
     email: '',
     password: '',
     fullName: '',
+    userType: 'individual', // 'individual' or 'agent'
   });
 
   const { signIn, signUp } = useAuth();
@@ -32,7 +34,12 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(formData.email, formData.password, formData.fullName);
+        const { error } = await signUp(
+          formData.email, 
+          formData.password, 
+          formData.fullName,
+          formData.userType === 'agent'
+        );
         if (error) {
           toast({
             title: "Sign up failed",
@@ -41,9 +48,14 @@ export default function AuthPage() {
           });
         } else {
           toast({
-            title: "Success!",
-            description: "Please check your email to verify your account.",
+            title: "Account created successfully!",
+            description: formData.userType === 'agent' 
+              ? "Setting up your agent profile..."
+              : "Welcome to HomeBase! Redirecting to your dashboard...",
           });
+          
+          // Don't switch to sign-in tab, user will be auto-signed in
+          // The auth context will handle the redirect
         }
       } else {
         const { error } = await signIn(formData.email, formData.password);
@@ -63,8 +75,8 @@ export default function AuthPage() {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "An error occurred",
+        description: "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -79,50 +91,46 @@ export default function AuthPage() {
     });
   };
 
+  const handleUserTypeChange = (value: string) => {
+    setFormData({
+      ...formData,
+      userType: value,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/30 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-lg border-0 bg-background/80 backdrop-blur-sm">
           <CardHeader className="text-center pb-2">
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="flex items-center justify-center mb-4"
             >
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Welcome to HomeBase
-              </CardTitle>
-              <CardDescription className="mt-2">
-                {isSignUp ? 'Create your account to get started' : 'Sign in to your account'}
-              </CardDescription>
+              <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-primary-foreground" />
+              </div>
             </motion.div>
+            <CardTitle className="text-2xl font-bold">HomeBase</CardTitle>
+            <CardDescription>
+              Ghana's leading real estate platform
+            </CardDescription>
           </CardHeader>
-          
           <CardContent>
-            <Tabs value={isSignUp ? 'signup' : 'signin'} className="w-full">
+            <Tabs value={isSignUp ? "signup" : "signin"} onValueChange={(value) => setIsSignUp(value === "signup")}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger 
-                  value="signin" 
-                  onClick={() => setIsSignUp(false)}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="signup" 
-                  onClick={() => setIsSignUp(true)}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  Sign Up
-                </TabsTrigger>
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="signin" className="mt-6">
+              <TabsContent value="signin" className="space-y-4 mt-6">
                 <motion.form
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -133,7 +141,7 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="email"
                         name="email"
@@ -143,7 +151,6 @@ export default function AuthPage() {
                         onChange={handleInputChange}
                         className="pl-10"
                         required
-                        suppressHydrationWarning
                       />
                     </div>
                   </div>
@@ -151,45 +158,34 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="password"
                         name="password"
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         value={formData.password}
                         onChange={handleInputChange}
                         className="pl-10 pr-10"
                         required
-                        suppressHydrationWarning
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
                   
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={loading}
-                      suppressHydrationWarning
-                    >
-                      {loading ? 'Signing in...' : 'Sign In'}
-                    </Button>
-                  </motion.div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Signing In..." : "Sign In"}
+                  </Button>
                 </motion.form>
               </TabsContent>
               
-              <TabsContent value="signup" className="mt-6">
+              <TabsContent value="signup" className="space-y-4 mt-6">
                 <motion.form
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -200,7 +196,7 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="fullName"
                         name="fullName"
@@ -210,7 +206,6 @@ export default function AuthPage() {
                         onChange={handleInputChange}
                         className="pl-10"
                         required
-                        suppressHydrationWarning
                       />
                     </div>
                   </div>
@@ -218,7 +213,7 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="email"
                         name="email"
@@ -228,7 +223,6 @@ export default function AuthPage() {
                         onChange={handleInputChange}
                         className="pl-10"
                         required
-                        suppressHydrationWarning
                       />
                     </div>
                   </div>
@@ -236,41 +230,78 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="password"
                         name="password"
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         placeholder="Create a password"
                         value={formData.password}
                         onChange={handleInputChange}
                         className="pl-10 pr-10"
                         required
-                        suppressHydrationWarning
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={loading}
-                      suppressHydrationWarning
+
+                  {/* User Type Selection */}
+                  <div className="space-y-3">
+                    <Label>Account Type</Label>
+                    <RadioGroup
+                      value={formData.userType}
+                      onValueChange={handleUserTypeChange}
+                      className="space-y-3"
                     >
-                      {loading ? 'Creating account...' : 'Create Account'}
-                    </Button>
-                  </motion.div>
+                      <motion.div 
+                        className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <RadioGroupItem value="individual" id="individual" />
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <Label htmlFor="individual" className="font-medium cursor-pointer">
+                              Individual User
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              Looking to buy, sell, or rent properties
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <RadioGroupItem value="agent" id="agent" />
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <Label htmlFor="agent" className="font-medium cursor-pointer">
+                              Real Estate Agent
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              Professional agent helping clients with properties
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </RadioGroup>
+                  </div>
+                  
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Creating Account..." : "Create Account"}
+                  </Button>
                 </motion.form>
               </TabsContent>
             </Tabs>
